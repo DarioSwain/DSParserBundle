@@ -1,0 +1,45 @@
+DSParserBundle:
+  models:
+    source: DS\ParserBundle\Model\Source
+    content: DS\ParserBundle\Model\Content
+    entity: DS\ParserBundle\Model\Entity (optional)
+  sources:
+    google:
+      root: google.by
+      section:
+        catalog:
+          url: catalog.google.com
+          pattern: ^/
+          model:
+            category:
+              id: html > p > title
+              name: html > body > name
+              title: html > title
+              output: entity
+              map: DS\ParserBundle\Model\Category
+            product:
+              id: html > p > title
+              output: array
+        products:
+
+  scanner:
+      content_expiration: 10d
+      save_content: true
+      sources:
+        google:
+          interval: 10m
+          links:
+            [type: category, link: catalog.google.com]
+            [type: product, content: category]
+            [type: product, link: catalog.google.com/xmaslights/]
+        tut:
+          interval: 1m
+
+
+  entity:
+    product:
+      id:
+      name:
+      title:
+    category:
+      id:
