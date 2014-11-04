@@ -65,7 +65,6 @@ class Configuration implements ConfigurationInterface
 		$node
 			->children()
 				->arrayNode('parser')
-					->addDefaultsIfNotSet()
 					->useAttributeAsKey('source')
 					->prototype('array')
 						->children()

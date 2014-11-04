@@ -17,8 +17,10 @@ namespace DS\ParserBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 class DSParserExtension extends Extension
 {
@@ -33,8 +35,30 @@ class DSParserExtension extends Extension
 		$configuration = new Configuration();
 		$config = $processor->processConfiguration($configuration, $configs);
 		$loader = new XmlFileLoader($container, new FileLocator($this->getConfigurationDirectory()));
-		$loader->load(sprintf('%s.xml', $config['driver']));
-		$container->setParameter($this->getAlias() . '.backend_type_' . $config['driver'], true);
+		$this->loadConfigurationFile($this->configFiles,$loader);
+
+		$this->createParserServices($config, $container);
+
+//		var_dump($config);die;
+
+//		$loader->load(sprintf('%s.xml', $config['driver']));
+//		$container->setParameter($this->getAlias() . '.backend_type_' . $config['driver'], true);
+	}
+
+	protected function createParserServices(array $config, ContainerBuilder $container)
+	{
+		if(!isset($config['parser']))
+		{
+			return false;
+		}
+
+		foreach($config['parser'] as $key => $parserSource)
+		{
+			$container->setDefinition('ds_parser.'.$key.'.'.$parserSource['name'].'.parser',
+				new Definition($parserSource['model']));
+		}
+
+		return true;
 	}
 
 	/**

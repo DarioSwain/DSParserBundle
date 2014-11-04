@@ -40,13 +40,13 @@ class DSParserBundle extends Bundle
 	 */
 	public function build(ContainerBuilder $container)
 	{
-		$mappings = array(
-			realpath(__DIR__ . '/Resources/config/doctrine/model') => 'DS\ParserBundle\Model',
-		);
-		if (class_exists('Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass')) {
-			$container->addCompilerPass(DoctrineOrmMappingsPass::createXmlMappingDriver($mappings, array(sprintf('%s.model_manager_name',self::getBundlePrefix())), sprintf('%s.backend_type_orm',self::getBundlePrefix())));
-		} else {
-			$container->addCompilerPass(RegisterMappingsPass::createOrmMappingDriver($mappings));
-		}
+//		$mappings = array(
+//			realpath(__DIR__ . '/Resources/config/doctrine/model') => 'DS\ParserBundle\Model',
+//		);
+//		if (class_exists('Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass')) {
+//			$container->addCompilerPass(DoctrineOrmMappingsPass::createXmlMappingDriver($mappings, array(sprintf('%s.model_manager_name',self::getBundlePrefix())), sprintf('%s.backend_type_orm',self::getBundlePrefix())));
+//		} else {
+//			$container->addCompilerPass(RegisterMappingsPass::createOrmMappingDriver($mappings));
+//		}
 	}
 }
