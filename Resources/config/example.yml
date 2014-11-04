@@ -1,45 +1,56 @@
 DSParserBundle:
-  models:
+  models: (optional)
     source: DS\ParserBundle\Model\Source
-    content: DS\ParserBundle\Model\Content
+    link: DS\ParserBundle\Model\Link
     entity: DS\ParserBundle\Model\Entity (optional)
-  sources:
+
+  parser:
     google:
-      root: google.by
-      section:
-        catalog:
-          url: catalog.google.com
-          pattern: ^/
-          model:
-            category:
-              id: html > p > title
-              name: html > body > name
-              title: html > title
-              output: entity
-              map: DS\ParserBundle\Model\Category
-            product:
-              id: html > p > title
-              output: array
-        products:
+     - type: link
+       name: link (google.link.parser service) optional same as type
+       model: DS\ParserBundle\Parser\LinkInterface
+     - type: mixed
+       name: custom (google.custom.parser service)
+       model: DS\ParserBundle\Parser\ContentInterface + LinkInterface
+     - type: content
+       model: DS\ParserBundle\Parser\ContentInterface
 
   scanner:
-      content_expiration: 10d
-      save_content: true
+      default_model: DS\ParserBundle\Scanner\Default
       sources:
         google:
-          interval: 10m
-          links:
-            [type: category, link: catalog.google.com]
-            [type: product, content: category]
-            [type: product, link: catalog.google.com/xmaslights/]
+          model: DS\ParserBundle\Scanner\MyCustom
+          parser: @google.link.parser or @google.mixed.parser by default
+          expiration: 1d
+          urls:
+            - catalog.google.com
+            - google.com
+            - web.google.com
+          validation:
+            product:
+              condition: h1 > b > li > test = "Specification"
+              validator: DS\ParserBundle\Validator\MyCustom
+            category:
+              condition: h1 > text = "Category"
         tut:
-          interval: 1m
+          expiration: 1d
 
-
-  entity:
-    product:
-      id:
-      name:
-      title:
-    category:
-      id:
+  entity_manager:
+    default_model: DS\ParserBundle\EntityManager\Default
+    entity:
+      product:
+        - source: google
+          parser: @google.content.parser (default) or @google.mixed.parser
+          output: array (ArrayMapper) entity (EntityMapper)
+          mapper: DS\ParserBundle\Mapper\Default (optional)
+          entity_class: You\Custom\EntityClass (require for entity output type)
+          cache: true
+          condition: (require, optional if custom mapper exist)
+            id:
+              value: h1 > body > class op
+              default: exception
+            name:
+              value: h1 > body > class name
+              default: false
+            title:
+              value: h1 > class title
