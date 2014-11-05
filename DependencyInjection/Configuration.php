@@ -70,6 +70,7 @@ class Configuration implements ConfigurationInterface
 						->children()
 							->scalarNode('name')->defaultValue('default')->end()
 							->scalarNode('model')->defaultValue('DS\\ParserBundle\\Parser\\DefaultParser')->end()
+							->scalarNode('client')->defaultValue('DS\\ParserBundle\\Browser\\Client')->end()
 						->end()
 					->end()
 				->end()

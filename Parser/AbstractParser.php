@@ -13,13 +13,13 @@
 
 namespace DS\ParserBundle\Parser;
 
-use Goutte\Client;
+use DS\ParserBundle\Browser\ClientInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 abstract class AbstractParser implements ParserInterface
 {
 	/**
-	 * @var Client
+	 * @var ClientInterface
 	 */
 	protected $client;
 	/**
@@ -27,9 +27,9 @@ abstract class AbstractParser implements ParserInterface
 	 */
 	protected $page;
 
-	public function __construct()
+	public function __construct(ClientInterface $client)
 	{
-		$this->client = new Client();
+		$this->client = $client;
 	}
 
 	/**
