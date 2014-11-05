@@ -22,14 +22,21 @@ abstract class AbstractParser implements ParserInterface
 	 * @var ClientInterface
 	 */
 	protected $client;
-	/**
-	 * @var Crawler
-	 */
-	protected $page;
 
-	public function __construct(ClientInterface $client)
+	/**
+	 * 	array('product' => 'h1 > p > body')
+	 *
+	 * @var array
+	 */
+	protected $conditions;
+
+	protected $lastConditionSourceType;
+
+	public function __construct(ClientInterface $client, array $conditions = array())
 	{
 		$this->client = $client;
+		$this->validators = $conditions;
+		$this->lastConditionSourceType = null;
 	}
 
 	/**
@@ -38,9 +45,37 @@ abstract class AbstractParser implements ParserInterface
 	 */
 	public function goToPage($uri)
 	{
-		$this->page = $this->client->request('GET',$uri);
-
-		return $this->page;
+		return $this->client->request('GET',$uri);
 	}
+
+	public function parseLinks($uri)
+	{
+		$page = $this->goToPage($uri);
+
+		if($this->isValid($page))
+		{
+			//TODO: What return entity or array??
+			$page->filter('a')
+				->extract(array('_text', 'href'));
+		}
+	}
+
+	public function isValid(Crawler $page)
+	{
+		if(empty($this->validators))
+			return true;
+
+		foreach($this->conditions as $type => $condition)
+		{
+			if($page->filter($condition)->count())
+			{
+				$this->lastConditionSourceType = $type;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 
 }

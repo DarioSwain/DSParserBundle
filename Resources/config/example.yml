@@ -29,7 +29,7 @@ DSParserBundle:
           validation:
             product:
               condition: h1 > b > li > test = "Specification"
-              validator: DS\ParserBundle\Validator\MyCustom
+# not yet     validator: DS\ParserBundle\Validator\MyCustom
             category:
               condition: h1 > text = "Category"
         tut:
