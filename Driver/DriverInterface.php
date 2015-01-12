@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Wall Poster bundle.
+ * This file is part of the DSParser bundle.
  *
  * (c) Ilya Pokamestov 
  * 
@@ -11,16 +11,16 @@
  * file that was distributed with this source code.
  */
 
-namespace DS\ParserBundle\Browser;
+namespace DS\ParserBundle\Driver;
 
-use Symfony\Component\DomCrawler\Crawler;
+use GuzzleHttp\Message\ResponseInterface;
 
-interface ClientInterface
+interface DriverInterface
 {
 	/**
+	 * @param string $url
 	 * @param string $method
-	 * @param string $uri
-	 * @return Crawler
+	 * @return ResponseInterface
 	 */
-	public function request($method, $uri);
+	public function getContent($url, $method = 'GET');
 }

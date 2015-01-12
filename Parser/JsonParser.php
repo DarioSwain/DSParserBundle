@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Wall Poster bundle.
+ * This file is part of the DSParser bundle.
  *
  * (c) Ilya Pokamestov 
  * 
@@ -13,18 +13,15 @@
 
 namespace DS\ParserBundle\Parser;
 
-interface ParserInterface
+class JsonParser extends AbstractParser
 {
 	/**
-	 * @param $uri
-	 * @return array
+	 * {@inheritdoc}
 	 */
-	public function parseLinks($uri);
+	protected function parse($url, $method = 'GET')
+	{
+		$response = $this->driver->getContent($url, $method);
 
-	/**
-	 * @param $uri
-	 * @param array $conditions
-	 * @return array
-	 */
-	public function parseContent($uri, $conditions);
+		return $response->json();
+	}
 } 

@@ -13,15 +13,15 @@
 
 namespace DS\ParserBundle\Parser;
 
-use DS\ParserBundle\Browser\ClientInterface;
+use DS\ParserBundle\Driver\DriverInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
-abstract class AbstractParser implements ParserInterface
+abstract class AbstractParser
 {
 	/**
-	 * @var ClientInterface
+	 * @var DriverInterface
 	 */
-	protected $client;
+	protected $driver;
 
 	/**
 	 * 	array('product' => 'h1 > p > body')
@@ -30,52 +30,97 @@ abstract class AbstractParser implements ParserInterface
 	 */
 	protected $conditions;
 
-	protected $lastConditionSourceType;
+	protected $pages = array();
 
-	public function __construct(ClientInterface $client, array $conditions = array())
+	public function __construct(DriverInterface $driver, array $conditions = array())
 	{
-		$this->client = $client;
-		$this->validators = $conditions;
+		$this->driver = $driver;
+		$this->conditions = $conditions;
 		$this->lastConditionSourceType = null;
 	}
 
 	/**
-	 * @param $uri
+	 * @param string $url
+	 * @param string $method
+	 * @return Crawler|array
+	 */
+	abstract protected function parse($url, $method = 'GET');
+
+	/**
+	 * Setup additional parameters
+	 *
+	 * @param Crawler $page
 	 * @return Crawler
 	 */
-	public function goToPage($uri)
+	protected function preparePage($page)
 	{
-		return $this->client->request('GET',$uri);
+		return $page;
 	}
 
-	public function parseLinks($uri)
+	/**
+	 * @param string $url
+	 * @param string $condition
+	 * @param array $extract
+	 * @param string $method
+	 * @return array|null
+	 * @throws \Exception
+	 */
+	public function find($url, $condition, $extract = array('_text'), $method = 'GET')
 	{
-		$page = $this->goToPage($uri);
+		$page = $this->getPage($url, $method);
 
-		if($this->isValid($page))
+		if($page instanceof Crawler)
 		{
-			//TODO: What return entity or array??
-			$page->filter('a')
-				->extract(array('_text', 'href'));
+			$page = $this->preparePage($page);
+
+			$filteredValue = $page->filter($condition);
+
+			return $filteredValue->extract($extract);
 		}
-	}
-
-	public function isValid(Crawler $page)
-	{
-		if(empty($this->validators))
-			return true;
-
-		foreach($this->conditions as $type => $condition)
+		elseif(is_array($page))
 		{
-			if($page->filter($condition)->count())
+			$arrayKeys = explode('>', $condition);
+			$arrayKeys = array_map('trim',$arrayKeys);
+
+			$element = null;
+			foreach($arrayKeys as $key)
 			{
-				$this->lastConditionSourceType = $type;
-				return true;
-			}
-		}
+				if(isset($page[$key]))
+				{
+					$element = $page[$key];
+					continue;
+				}
 
-		return false;
+				throw new \Exception('Node not found');
+			}
+
+			if(is_array($element))
+			{
+				throw new \Exception('Node with deeper nodes founded');
+			}
+
+			return $element;
+		}
+		else
+		{
+			throw new \Exception('Unknown page type');
+		}
 	}
 
+	/**
+	 * @param string $url
+	 * @param string $method
+	 * @return Crawler|array
+	 */
+	public function getPage($url, $method = 'GET')
+	{
+		if(!isset($this->pages[$url]))
+		{
+			$page = $this->parse($url, $method);
+			$this->pages[$url] = $page;
+		}
+
+		return $this->pages[$url];
+	}
 
 }

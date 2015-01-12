@@ -55,7 +55,7 @@ class DSParserExtension extends Extension
 		foreach($config['parser'] as $key => $parserSource)
 		{
 			$container->setDefinition('ds_parser.'.$key.'.'.$parserSource['name'].'.parser',
-				new Definition($parserSource['model'], array(new Definition($parserSource['client']))));
+				new Definition($parserSource['model'], array(new Reference('ds.guzzle.driver'))));
 		}
 
 		return true;

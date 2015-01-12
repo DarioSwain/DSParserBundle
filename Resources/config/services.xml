@@ -4,5 +4,16 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services
                                http://symfony.com/schema/dic/services/services-1.0.xsd">
+            
+    <parameters>
+        <parameter key="ds.guzzle.client.class">GuzzleHttp\Client</parameter>
+        <parameter key="ds.guzzle.driver.class">DS\ParserBundle\Driver\GuzzleDriver</parameter>
+    </parameters>
 
+    <services>
+        <service id="ds.guzzle.client" class="%ds.guzzle.client.class%" />
+        <service id="ds.guzzle.driver" class="%ds.guzzle.driver.class%">
+            <argument type="service" id="ds.guzzle.client" />
+        </service>
+    </services>
 </container>
